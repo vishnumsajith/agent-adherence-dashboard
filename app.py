@@ -123,19 +123,21 @@ st.write(first_login.columns.tolist())
 
 st.dataframe(first_login)
 
-  late_count = (
+late_count = (
     first_login["Late Minutes"] > 0
 ).sum()
-    col1, col2 = st.columns(2)
 
-    with col1:
-        st.metric(
-            "Late Logins",
-            late_count
-        )
+col1, col2 = st.columns(2)
 
-    with col2:
-        st.metric(
-            "Agents",
-            roster["Name"].nunique()
+with col1:
+    st.metric(
+        "Late Logins",
+        late_count
+    )
+
+with col2:
+    st.metric(
+        "Agents",
+        roster["Name"].nunique()
+    )
         )
