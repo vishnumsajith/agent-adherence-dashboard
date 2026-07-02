@@ -8,10 +8,6 @@ st.set_page_config(
 
 st.title("Agent Adherence Dashboard")
 
-st.write(
-    "Upload Roster and Activity Report"
-)
-
 roster_file = st.file_uploader(
     "Upload Roster File",
     type=["xlsx"]
@@ -25,25 +21,46 @@ activity_file = st.file_uploader(
 if roster_file and activity_file:
 
     roster = pd.read_excel(roster_file)
-
     activity = pd.read_excel(activity_file)
 
-    st.success("Files Uploaded Successfully")
+    activity["Activity Time"] = pd.to_datetime(
+        activity["Activity Time"],
+        errors="coerce"
+    )
 
-    st.subheader("Roster Preview")
+    activity["Date"] = activity["Activity Time"].dt.date
 
-    st.dataframe(roster.head())
+    login_data = activity[
+        activity["Activity Detail"].isin(
+            ["SIGN-IN", "AVAILABLE"]
+        )
+    ]
 
-    st.subheader("Activity Preview")
+    first_login = (
+        login_data
+        .sort_values("Activity Time")
+        .groupby(
+            ["Agent Name", "Date"]
+        )["Activity Time"]
+        .first()
+        .reset_index()
+    )
 
-    st.dataframe(activity.head())
+    st.success("Adherence Data Generated")
+
+    st.subheader("First Login Details")
+
+    st.dataframe(
+        first_login,
+        use_container_width=True
+    )
 
     st.metric(
-        "Total Agents",
+        "Agents",
         roster["Name"].nunique()
     )
 
     st.metric(
-        "Total Records",
-        len(activity)
+        "Login Records",
+        len(first_login)
     )
