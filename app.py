@@ -134,7 +134,7 @@ if roster_file and activity_file:
         late_count
     )
 
-with col2:
+    with col2:
     st.metric(
         "Agents",
         roster["Name"].nunique()
