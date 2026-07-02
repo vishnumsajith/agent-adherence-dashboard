@@ -116,7 +116,7 @@ if selected_shift != "All":
 
 # PUT THE DATAFRAME BELOW THIS
 
-  st.dataframe(
+ st.dataframe(
     first_login[
         [
             "Agent Name",
@@ -129,6 +129,7 @@ if selected_shift != "All":
     ],
     use_container_width=True
 )
+
 late_count = (
     first_login["Late Minutes"] > 0
 ).sum()
