@@ -30,14 +30,14 @@ if roster_file and activity_file:
 
     activity["Date"] = activity["Activity Time"].dt.date
 
-    login_data = activity[
+    login_events = activity[
         activity["Activity Detail"].isin(
             ["SIGN-IN", "AVAILABLE"]
         )
     ]
 
     first_login = (
-        login_data
+        login_events
         .sort_values("Activity Time")
         .groupby(
             ["Agent Name", "Date"]
@@ -46,21 +46,88 @@ if roster_file and activity_file:
         .reset_index()
     )
 
-    st.success("Adherence Data Generated")
+    roster["Shift Start"] = (
+        roster["PST Shift Time"]
+        .astype(str)
+        .str.split("-")
+        .str[0]
+    )
 
-    st.subheader("First Login Details")
+    first_login = first_login.merge(
+        roster[
+            ["Name", "Shift Start"]
+        ],
+        left_on="Agent Name",
+        right_on="Name",
+        how="left"
+    )
+
+    def get_late_minutes(row):
+        try:
+            login_time = row["Activity Time"]
+
+            shift_start = pd.to_datetime(
+                row["Shift Start"],
+                format="%I:%M%p",
+                errors="coerce"
+            )
+
+            if pd.isna(shift_start):
+                return None
+
+            shift_datetime = pd.Timestamp.combine(
+                login_time.date(),
+                shift_start.time()
+            )
+
+            diff = (
+                login_time -
+                shift_datetime
+            ).total_seconds() / 60
+
+            return max(0, round(diff))
+
+        except:
+            return None
+
+    first_login["Late Minutes"] = (
+        first_login.apply(
+            get_late_minutes,
+            axis=1
+        )
+    )
+
+    st.success(
+        "Late Login Report Generated"
+    )
+
+    st.subheader(
+        "Late Login Dashboard"
+    )
 
     st.dataframe(
-        first_login,
+        first_login[
+            [
+                "Agent Name",
+                "Date",
+                "Shift Start",
+                "Activity Time",
+                "Late Minutes"
+            ]
+        ],
         use_container_width=True
+    )
+
+    late_count = (
+        first_login["Late Minutes"] > 0
+    ).sum()
+
+    st.metric(
+        "Late Logins",
+        late_count
     )
 
     st.metric(
         "Agents",
         roster["Name"].nunique()
-    )
-
-    st.metric(
-        "Login Records",
-        len(first_login)
     )
