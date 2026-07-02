@@ -99,7 +99,7 @@ if roster_file and activity_file:
     )
 
     shift_list = sorted(
-        first_login["Shift Name"]
+        first_login["Shift Time"]
         .dropna()
         .unique()
     )
