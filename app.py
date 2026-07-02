@@ -54,16 +54,17 @@ if roster_file and activity_file:
     )
 
     first_login = first_login.merge(
-    roster[
-        ["Name", "Shift Name", "Shift Start"]
-    ],
-    left_on="Agent Name",
-    right_on="Name",
-    how="left"
+        roster[
+            ["Name", "Shift Name", "Shift Start"]
+        ],
+        left_on="Agent Name",
+        right_on="Name",
+        how="left"
     )
 
     def get_late_minutes(row):
         try:
+
             login_time = row["Activity Time"]
 
             shift_start = pd.to_datetime(
@@ -73,7 +74,7 @@ if roster_file and activity_file:
             )
 
             if pd.isna(shift_start):
-                return None
+                return 0
 
             shift_datetime = pd.Timestamp.combine(
                 login_time.date(),
@@ -88,21 +89,13 @@ if roster_file and activity_file:
             return max(0, round(diff))
 
         except:
-            return None
+            return 0
 
     first_login["Late Minutes"] = (
         first_login.apply(
             get_late_minutes,
             axis=1
         )
-    )
-
-    st.success(
-        "Late Login Report Generated"
-    )
-
-    st.subheader(
-        "Late Login Dashboard"
     )
 
     shift_list = sorted(
@@ -121,45 +114,38 @@ if roster_file and activity_file:
             first_login["Shift Name"] == selected_shift
         ]
 
-    first_login["Late Minutes"] = (
-        first_login.apply(
-            get_late_minutes,
-            axis=1
+    st.success(
+        "Late Login Report Generated"
     )
-)
 
-st.success(
-    "Late Login Report Generated"
-)
+    st.dataframe(
+        first_login[
+            [
+                "Agent Name",
+                "Shift Name",
+                "Date",
+                "Shift Start",
+                "Activity Time",
+                "Late Minutes"
+            ]
+        ],
+        use_container_width=True
+    )
 
-st.subheader(
-    "Late Login Dashboard"
-)
+    late_count = (
+        first_login["Late Minutes"] > 0
+    ).sum()
 
-st.dataframe(
-    first_login[
-        [
-            "Agent Name",
-            "Shift Name",
-            "Date",
-            "Shift Start",
-            "Activity Time",
-            "Late Minutes"
-        ]
-    ],
-    use_container_width=True
-)
+    col1, col2 = st.columns(2)
 
-late_count = (
-    first_login["Late Minutes"] > 0
-).sum()
+    with col1:
+        st.metric(
+            "Late Logins",
+            late_count
+        )
 
-st.metric(
-    "Late Logins",
-    late_count
-)
-
-st.metric(
-    "Agents",
-    roster["Name"].nunique()
-)
+    with col2:
+        st.metric(
+            "Agents",
+            roster["Name"].nunique()
+        )
