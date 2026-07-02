@@ -107,16 +107,22 @@ if roster_file and activity_file:
 selected_shift = st.selectbox(
     "Select Shift",
     ["All"] + list(shift_list)
+first_login["Late Minutes"] = (
+    first_login.apply(
+        get_late_minutes,
+        axis=1
+    )
 )
 
-if selected_shift != "All":
-    first_login = first_login[
-        first_login["Shift Name"] == selected_shift
-    ]
+st.success(
+    "Late Login Report Generated"
+)
 
-# PUT THE DATAFRAME BELOW THIS
+st.subheader(
+    "Late Login Dashboard"
+)
 
- st.dataframe(
+st.dataframe(
     first_login[
         [
             "Agent Name",
