@@ -104,29 +104,22 @@ if roster_file and activity_file:
     st.subheader(
         "Late Login Dashboard"
     )
-   if "Shift Name" in first_login.columns:
-
-    shift_list = sorted(
-        first_login["Shift Name"]
-        .dropna()
-        .unique()
-    )
-first_login["Late Minutes"] = (
-    first_login.apply(
-        get_late_minutes,
-        axis=1
-    )
+ shift_list = sorted(
+    first_login["Shift Name"]
+    .dropna()
+    .unique()
 )
-    selected_shift = st.selectbox(
-        "Select Shift",
-        ["All"] + list(shift_list)
-    )
 
-    if selected_shift != "All":
-        first_login = first_login[
-            first_login["Shift Name"] == selected_shift
-        ]
-    
+selected_shift = st.selectbox(
+    "Select Shift",
+    ["All"] + list(shift_list)
+)
+
+if selected_shift != "All":
+    first_login = first_login[
+        first_login["Shift Name"] == selected_shift
+    ]
+
 first_login["Late Minutes"] = (
     first_login.apply(
         get_late_minutes,
