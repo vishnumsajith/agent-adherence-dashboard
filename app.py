@@ -123,9 +123,9 @@ st.write(first_login.columns.tolist())
 
 st.dataframe(first_login)
 
-    late_count = (
-        first_login["Late Minutes"] > 0
-    ).sum()
+   late_count = (
+       first_login["Late Minutes"] > 0
+   ).sum()
 
     col1, col2 = st.columns(2)
 
