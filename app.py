@@ -118,19 +118,10 @@ if roster_file and activity_file:
         "Late Login Report Generated"
     )
 
-    st.dataframe(
-        first_login[
-            [
-                "Agent Name",
-                "Shift Name",
-                "Date",
-                "Shift Start",
-                "Activity Time",
-                "Late Minutes"
-            ]
-        ],
-        use_container_width=True
-    )
+    st.write("Columns Available")
+st.write(first_login.columns.tolist())
+
+st.dataframe(first_login)
 
     late_count = (
         first_login["Late Minutes"] > 0
