@@ -107,6 +107,7 @@ if roster_file and activity_file:
 selected_shift = st.selectbox(
     "Select Shift",
     ["All"] + list(shift_list)
+   )
 first_login["Late Minutes"] = (
     first_login.apply(
         get_late_minutes,
