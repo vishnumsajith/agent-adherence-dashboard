@@ -116,19 +116,6 @@ if selected_shift != "All":
 
 # PUT THE DATAFRAME BELOW THIS
 
-st.dataframe(
-    first_login[
-        [
-            "Agent Name",
-            "Shift Name",
-            "Date",
-            "Shift Start",
-            "Activity Time",
-            "Late Minutes"
-        ]
-    ],
-    use_container_width=True
-)
   st.dataframe(
     first_login[
         [
