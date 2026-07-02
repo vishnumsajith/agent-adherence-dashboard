@@ -140,4 +140,3 @@ with col2:
         "Agents",
         roster["Name"].nunique()
     )
-        )
