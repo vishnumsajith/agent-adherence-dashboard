@@ -20,18 +20,30 @@ activity_file = st.file_uploader(
 
 if roster_file and activity_file:
 
-    # Load files
+    # ------------------------
+    # LOAD FILES
+    # ------------------------
+
     roster = pd.read_excel(roster_file)
     activity = pd.read_excel(activity_file)
 
-    # Show column names for troubleshooting
+    roster.columns = roster.columns.str.strip()
+    activity.columns = activity.columns.str.strip()
+
+    # ------------------------
+    # TROUBLESHOOTING
+    # ------------------------
+
     st.subheader("Roster Columns")
     st.write(roster.columns.tolist())
 
     st.subheader("Activity Columns")
     st.write(activity.columns.tolist())
 
-    # Convert activity time
+    # ------------------------
+    # PREPARE ACTIVITY DATA
+    # ------------------------
+
     activity["Activity Time"] = pd.to_datetime(
         activity["Activity Time"],
         errors="coerce"
@@ -39,14 +51,16 @@ if roster_file and activity_file:
 
     activity["Date"] = activity["Activity Time"].dt.date
 
-    # Login events
+    # ------------------------
+    # LOGIN EVENTS
+    # ------------------------
+
     login_events = activity[
         activity["Activity Detail"].isin(
             ["SIGN-IN", "AVAILABLE"]
         )
     ]
 
-    # First login by day
     first_login = (
         login_events
         .sort_values("Activity Time")
@@ -57,25 +71,56 @@ if roster_file and activity_file:
         .reset_index()
     )
 
-    # Extract shift start
+    # ------------------------
+    # SHIFT START
+    # ------------------------
+
     roster["Shift Start"] = (
         roster["PST Shift Time"]
         .astype(str)
         .str.split("-")
         .str[0]
+        .str.strip()
     )
 
-    # Merge roster
+    # ------------------------
+    # MERGE ROSTER
+    # ------------------------
+
     first_login = first_login.merge(
         roster[
-            ["Name", "Shift Time", "Shift Start"]
+            [
+                "Name",
+                "Shift Time",
+                "Shift Start"
+            ]
         ],
         left_on="Agent Name",
         right_on="Name",
         how="left"
     )
 
-    # Calculate late minutes
+    # ------------------------
+    # UNMATCHED AGENTS
+    # ------------------------
+
+    unmatched_agents = (
+        first_login[
+            first_login["Name"].isna()
+        ]["Agent Name"]
+        .drop_duplicates()
+        .tolist()
+    )
+
+    # Keep only roster agents
+    first_login = first_login[
+        first_login["Name"].notna()
+    ].copy()
+
+    # ------------------------
+    # LATE LOGIN
+    # ------------------------
+
     def get_late_minutes(row):
 
         try:
@@ -113,7 +158,10 @@ if roster_file and activity_file:
         )
     )
 
-    # Shift Filter
+    # ------------------------
+    # SHIFT FILTER
+    # ------------------------
+
     shift_list = sorted(
         first_login["Shift Time"]
         .dropna()
@@ -126,11 +174,15 @@ if roster_file and activity_file:
     )
 
     if selected_shift != "All":
+
         first_login = first_login[
             first_login["Shift Time"] == selected_shift
         ]
 
-    # Metrics
+    # ------------------------
+    # METRICS
+    # ------------------------
+
     late_count = (
         first_login["Late Minutes"] > 0
     ).sum()
@@ -149,7 +201,30 @@ if roster_file and activity_file:
             roster["Name"].nunique()
         )
 
-    # Dashboard
+    # ------------------------
+    # UNMATCHED AGENTS DISPLAY
+    # ------------------------
+
+    st.subheader("Unmatched Agents")
+
+    if len(unmatched_agents) > 0:
+
+        st.warning(
+            f"{len(unmatched_agents)} unmatched agents found."
+        )
+
+        st.write(unmatched_agents)
+
+    else:
+
+        st.success(
+            "All agents matched with roster."
+        )
+
+    # ------------------------
+    # LOGIN ADHERENCE TABLE
+    # ------------------------
+
     st.subheader("Login Adherence")
 
     st.dataframe(
