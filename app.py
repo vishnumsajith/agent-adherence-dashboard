@@ -125,9 +125,6 @@ if roster_file and activity_file:
         first_login.apply(
             get_late_minutes,
             axis=1
-        )
-    )
-        axis=1
     )
 )
 
