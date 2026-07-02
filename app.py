@@ -54,12 +54,12 @@ if roster_file and activity_file:
     )
 
     first_login = first_login.merge(
-        roster[
-            ["Name", "Shift Start"]
-        ],
-        left_on="Agent Name",
-        right_on="Name",
-        how="left"
+    roster[
+        ["Name", "Shift Name", "Shift Start"]
+    ],
+    left_on="Agent Name",
+    right_on="Name",
+    how="left"
     )
 
     def get_late_minutes(row):
@@ -104,19 +104,45 @@ if roster_file and activity_file:
     st.subheader(
         "Late Login Dashboard"
     )
+selected_shift = st.selectbox(
+    "Select Shift",
+    ["All"] + list(shift_list)
+)
 
-    st.dataframe(
-        first_login[
-            [
-                "Agent Name",
-                "Date",
-                "Shift Start",
-                "Activity Time",
-                "Late Minutes"
-            ]
-        ],
-        use_container_width=True
-    )
+if selected_shift != "All":
+    first_login = first_login[
+        first_login["Shift Name"] == selected_shift
+    ]
+
+# PUT THE DATAFRAME BELOW THIS
+
+st.dataframe(
+    first_login[
+        [
+            "Agent Name",
+            "Shift Name",
+            "Date",
+            "Shift Start",
+            "Activity Time",
+            "Late Minutes"
+        ]
+    ],
+    use_container_width=True
+)
+`
+  st.dataframe(
+    first_login[
+        [
+            "Agent Name",
+            "Shift Name",
+            "Date",
+            "Shift Start",
+            "Activity Time",
+            "Late Minutes"
+        ]
+    ],
+    use_container_width=True
+)
 
     late_count = (
         first_login["Late Minutes"] > 0
