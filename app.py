@@ -129,17 +129,16 @@ if selected_shift != "All":
     ],
     use_container_width=True
 )
+late_count = (
+    first_login["Late Minutes"] > 0
+).sum()
 
-    late_count = (
-        first_login["Late Minutes"] > 0
-    ).sum()
+st.metric(
+    "Late Logins",
+    late_count
+)
 
-    st.metric(
-        "Late Logins",
-        late_count
-    )
-
-    st.metric(
-        "Agents",
-        roster["Name"].nunique()
-    )
+st.metric(
+    "Agents",
+    roster["Name"].nunique()
+)
