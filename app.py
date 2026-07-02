@@ -53,14 +53,14 @@ if roster_file and activity_file:
         .str[0]
     )
 
-    first_login = first_login.merge(
-        roster[
-            ["Name", "Shift Name", "Shift Start"]
-        ],
-        left_on="Agent Name",
-        right_on="Name",
-        how="left"
-    )
+ first_login = first_login.merge(
+    roster[
+        ["Name", "Shift Time", "Shift Start"]
+    ],
+    left_on="Agent Name",
+    right_on="Name",
+    how="left"
+)
 
     def get_late_minutes(row):
         try:
