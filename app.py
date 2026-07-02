@@ -118,18 +118,17 @@ if roster_file and activity_file:
         "Late Login Report Generated"
     )
 
-    st.write("Columns Available")
-st.write(first_login.columns.tolist())
+    st.success(
+        "Late Login Report Generated"
+    )
 
-st.dataframe(first_login)
-
-late_count = (
+    late_count = (
     first_login["Late Minutes"] > 0
-).sum()
+    ).sum()
 
-col1, col2 = st.columns(2)
+    col1, col2 = st.columns(2)
 
-with col1:
+    with col1:
     st.metric(
         "Late Logins",
         late_count
